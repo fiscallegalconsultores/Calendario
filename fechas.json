@@ -124,6 +124,21 @@
         "regimenes": ["general"]
       },
       {
+        "id": "25-LABORAL-PTU-PF",
+        "tipo_fecha": "puntual",
+        "fecha_inicio": "2025-06-29",
+        "categoria": "jurisdiccional",
+        "autoridad": "LFT",
+        "titulo": "PTU - Personas Físicas",
+        "descripcion": "Reparto de utilidades para trabajadores de personas físicas.",
+        "obligatorio": true,
+        "estatus": "confirmado",
+        "fundamento": "LFT Art. 122 + LISR Art. 150",
+        "prorroga_rfc": false,
+        "periodicidad": "anual",
+        "regimenes": ["general"]
+      },
+      {
         "id": "25-LABORAL-AGUINALDO",
         "tipo_fecha": "puntual",
         "fecha_inicio": "2025-12-20",
@@ -136,6 +151,21 @@
         "fundamento": "LFT Art. 87",
         "prorroga_rfc": false,
         "periodicidad": "anual",
+        "regimenes": ["general"]
+      },
+      {
+        "id": "25-LOCAL-ISN-01",
+        "tipo_fecha": "puntual",
+        "fecha_inicio": "2025-01-17",
+        "categoria": "fiscal",
+        "autoridad": "LOCAL",
+        "titulo": "Impuesto Sobre Nóminas (ISN)",
+        "descripcion": "Pago mensual del impuesto local por nómina.",
+        "obligatorio": true,
+        "estatus": "confirmado",
+        "fundamento": "Código Fiscal de cada entidad federativa",
+        "prorroga_rfc": false,
+        "periodicidad": "mensual",
         "regimenes": ["general"]
       },
       {
@@ -222,6 +252,21 @@
         "autoridad": "LFT",
         "titulo": "Revolución Mexicana",
         "descripcion": "Tercer lunes de noviembre. Día inhábil.",
+        "obligatorio": false,
+        "estatus": "confirmado",
+        "fundamento": "Art. 74 LFT",
+        "prorroga_rfc": false,
+        "periodicidad": "anual",
+        "regimenes": ["todos"]
+      },
+      {
+        "id": "25-INH-NAVIDAD",
+        "tipo_fecha": "puntual",
+        "fecha_inicio": "2025-12-25",
+        "categoria": "festivo",
+        "autoridad": "LFT",
+        "titulo": "Navidad",
+        "descripcion": "25 de diciembre. Día inhábil.",
         "obligatorio": false,
         "estatus": "confirmado",
         "fundamento": "Art. 74 LFT",
