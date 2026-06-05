@@ -1,117 +1,90 @@
-/* ESTILOS FLC + CALENDARIO GRID */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* ESTILOS COMPACTOS PARA CALENDARIO */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
 
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #F8FAFC;
-}
-
-/* Días del calendario */
+/* Días del calendario - MÁS COMPACTO */
 .calendar-day {
     background-color: white;
     border-right: 1px solid #E2E8F0;
     border-bottom: 1px solid #E2E8F0;
-    min-height: 100px;
-    padding: 8px;
-    transition: all 0.15s ease;
+    min-height: 65px;
+    padding: 4px;
+    transition: all 0.1s ease;
     cursor: pointer;
 }
+.calendar-day:hover { background-color: #F1F5F9; }
 
-.calendar-day:hover {
-    background-color: #F1F5F9;
-    transform: scale(1.01);
-    z-index: 2;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+/* Periodo vacacional (fondo tenue) */
+.calendar-day.vacaciones {
+    background-color: #E0F2FE;
+    position: relative;
+}
+.calendar-day.vacaciones::after {
+    content: "🏖️";
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 8px;
+    opacity: 0.6;
 }
 
 /* Día inhábil */
-.calendar-day.inhabil {
-    background-color: #FEF2F2;
-    color: #991B1B;
-}
-
-.calendar-day.inhabil .day-number {
-    text-decoration: line-through;
-}
+.calendar-day.inhabil { background-color: #FEF2F2; }
+.calendar-day.inhabil .day-number { text-decoration: line-through; }
 
 /* Día actual */
-.calendar-day.today {
-    background-color: #EFF6FF;
-    border: 2px solid #1D4ED8;
-    font-weight: bold;
-}
+.calendar-day.today { background-color: #EFF6FF; border: 1px solid #1D4ED8; }
 
-.day-number {
-    font-weight: 600;
-    font-size: 1rem;
-    display: inline-block;
-    margin-bottom: 4px;
-}
+.day-number { font-weight: 600; font-size: 0.75rem; display: inline-block; margin-bottom: 2px; }
 
-/* Event badges con colores por entidad */
+/* Event badges más pequeños */
 .event-badge {
-    font-size: 0.65rem;
-    padding: 2px 6px;
-    border-radius: 20px;
-    margin-bottom: 4px;
+    font-size: 0.55rem;
+    padding: 1px 4px;
+    border-radius: 12px;
+    margin-bottom: 2px;
     white-space: nowrap;
     overflow-x: hidden;
     text-overflow: ellipsis;
     display: flex;
     align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    transition: all 0.1s ease;
-}
-
-.event-badge.sat { background-color: #DBEAFE; color: #1E40AF; border-left: 3px solid #2563EB; }
-.event-badge.imss { background-color: #FFEDD5; color: #9A3412; border-left: 3px solid #EA580C; }
-.event-badge.infonavit { background-color: #D1FAE5; color: #065F46; border-left: 3px solid #10B981; }
-.event-badge.laboral { background-color: #E0E7FF; color: #3730A3; border-left: 3px solid #4F46E5; }
-.event-badge.tfja { background-color: #FCE7F3; color: #9D174D; border-left: 3px solid #EC4899; }
-.event-badge.pjf { background-color: #E8E8E8; color: #1F2937; border-left: 3px solid #4B5563; }
-
-.event-badge:hover {
-    filter: brightness(0.96);
-    transform: translateX(2px);
-}
-
-.more-events {
-    font-size: 0.6rem;
-    color: #64748B;
-    margin-top: 2px;
+    gap: 3px;
     cursor: pointer;
 }
+.event-badge.sat { background-color: #DBEAFE; color: #1E40AF; border-left: 2px solid #2563EB; }
+.event-badge.imss { background-color: #FFEDD5; color: #9A3412; border-left: 2px solid #EA580C; }
+.event-badge.infonavit { background-color: #D1FAE5; color: #065F46; border-left: 2px solid #10B981; }
+.event-badge.laboral { background-color: #E0E7FF; color: #3730A3; border-left: 2px solid #4F46E5; }
+.event-badge.tfja { background-color: #FCE7F3; color: #9D174D; border-left: 2px solid #EC4899; }
+.event-badge.pjf { background-color: #E8E8E8; color: #1F2937; border-left: 2px solid #4B5563; }
+.event-badge:hover { filter: brightness(0.96); }
 
-/* Scroll personalizado */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-::-webkit-scrollbar-track {
-    background: #E2E8F0;
-}
-::-webkit-scrollbar-thumb {
-    background: #94A3B8;
-    border-radius: 10px;
+.more-events { font-size: 0.5rem; color: #64748B; margin-top: 1px; cursor: pointer; }
+
+/* Scroll */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #E2E8F0; }
+::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 4px; }
+
+/* Tooltip para vacaciones */
+.vacaciones:hover::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1E293B;
+    color: white;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 10;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .calendar-day {
-        min-height: 70px;
-        padding: 4px;
-    }
-    .event-badge {
-        font-size: 0.55rem;
-        white-space: normal;
-        word-break: break-word;
-    }
-    .day-number {
-        font-size: 0.85rem;
-    }
+    .calendar-day { min-height: 55px; padding: 2px; }
+    .event-badge { font-size: 0.45rem; white-space: normal; word-break: break-word; }
+    .day-number { font-size: 0.65rem; }
 }
