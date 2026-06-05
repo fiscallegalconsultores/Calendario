@@ -1,4 +1,4 @@
-/* Ocultar barra de desplazamiento nativa en los selectores de pestañas móviles */
+/* Ocultar barra de desplazamiento en tabs */
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
@@ -7,9 +7,9 @@
     scrollbar-width: none;
 }
 
-/* Transiciones de opacidad fluidas para el Grid dinámico */
+/* Animación del grid */
 #calendar-grid {
-    animation: fadeIn 0.4s ease-out;
+    animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
@@ -21,4 +21,9 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Transición para alerta */
+#alert-banner {
+    transition: transform 0.3s ease-out;
 }
