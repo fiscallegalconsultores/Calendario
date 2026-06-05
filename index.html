@@ -24,24 +24,26 @@
 </head>
 <body class="bg-slate-50 font-sans antialiased">
 
+    <!-- Disclaimer superior -->
     <div class="bg-red-50 border-b border-red-200 text-red-800 px-4 py-2 text-center text-xs md:text-sm font-medium">
         <i class="fa-solid fa-triangle-exclamation text-red-600 mr-2"></i>
         <strong>⚠️ Esta herramienta es exclusivamente informativa. No sustituye la asesoría profesional.</strong>
     </div>
 
-    <nav class="bg-navy-900 border-b border-slate-800 sticky top-0 z-50">
+    <!-- Navbar con imagen corporativa y texto legible -->
+    <nav class="bg-navy-900 border-b border-slate-800 sticky top-0 z-50 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <!-- Logo y nombre (mejor contraste) -->
             <div class="flex items-center gap-3">
-                <div class="bg-blue-primary w-10 h-10 rounded-lg flex items-center justify-center shadow-md">
-                    <span class="text-white font-serif font-bold text-lg">FLC</span>
-                </div>
-                <div class="hidden sm:block">
-                    <div class="font-serif font-bold tracking-tight text-base">FLC Abogados Tributarios</div>
-                    <div class="text-[10px] text-blue-light uppercase tracking-wider">Sistema de Calendarios</div>
+                <img src="FLC.jpeg" alt="FLC Abogados Tributarios" class="h-12 w-12 rounded-lg object-cover shadow-md border border-white/10">
+                <div class="leading-tight">
+                    <div class="font-serif font-bold text-white text-base md:text-lg tracking-wide drop-shadow-md">FLC Abogados Tributarios</div>
+                    <div class="text-blue-light text-[10px] md:text-xs uppercase font-semibold tracking-wider">Fiscal Legal Consultores</div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 bg-navy-800 rounded-xl px-3 py-1.5">
+            <!-- Selector de Calendario -->
+            <div class="flex items-center gap-2 bg-navy-800/80 rounded-xl px-3 py-1.5 backdrop-blur-sm">
                 <i class="fa-regular fa-calendar-alt text-blue-light text-sm"></i>
                 <select id="tipoCalendario" class="bg-transparent text-white text-sm focus:outline-none">
                     <option value="todos">📋 Todos</option>
@@ -54,25 +56,27 @@
                 </select>
             </div>
 
+            <!-- RFC con tooltip -->
             <div class="relative group">
-                <div class="flex items-center bg-navy-800 rounded-xl px-3 py-1.5">
+                <div class="flex items-center bg-navy-800/80 rounded-xl px-3 py-1.5 backdrop-blur-sm">
                     <i class="fa-regular fa-id-card text-blue-light text-xs mr-2"></i>
                     <input type="text" id="rfcCompleto" placeholder="RFC (12/13 dígitos)" maxlength="13" class="w-28 bg-transparent text-white text-xs focus:outline-none uppercase placeholder:text-slate-400">
-                    <button id="aplicarProrrogaBtn" class="bg-blue-primary hover:bg-blue-hover text-white text-[10px] font-bold px-2 py-1 rounded-lg ml-2">Aplicar</button>
-                    <button id="limpiarRFCBtn" class="text-slate-400 hover:text-white text-[10px] ml-1"><i class="fa-solid fa-xmark"></i></button>
+                    <button id="aplicarProrrogaBtn" class="bg-blue-primary hover:bg-blue-hover text-white text-[10px] font-bold px-2 py-1 rounded-lg ml-2 transition">Aplicar</button>
+                    <button id="limpiarRFCBtn" class="text-slate-400 hover:text-white text-[10px] ml-1 transition"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="absolute bottom-full left-0 mb-2 w-64 bg-navy-800 text-white text-[10px] p-2 rounded-lg shadow-lg hidden group-hover:block z-50">
                     La prórroga aplica solo a pagos provisionales SAT. Sexto dígito: 1-2 (+1d), 3-4 (+2d), 5-6 (+3d), 7-8 (+4d), 9-0 (+5d).
                 </div>
             </div>
 
+            <!-- Filtros adicionales -->
             <div class="flex flex-wrap items-center gap-2">
-                <select id="tipoContribuyente" class="bg-navy-800 text-white text-xs rounded-xl px-2 py-1.5">
+                <select id="tipoContribuyente" class="bg-navy-800/80 text-white text-xs rounded-xl px-2 py-1.5 backdrop-blur-sm">
                     <option value="ambos">👥 PF / PM</option>
                     <option value="fisica">👤 PF</option>
                     <option value="moral">🏢 PM</option>
                 </select>
-                <select id="regimenFiscal" class="bg-navy-800 text-white text-xs rounded-xl px-2 py-1.5">
+                <select id="regimenFiscal" class="bg-navy-800/80 text-white text-xs rounded-xl px-2 py-1.5 backdrop-blur-sm">
                     <option value="todos">📊 Todos</option>
                     <option value="general">General</option>
                     <option value="resico">RESICO</option>
@@ -80,17 +84,20 @@
                 </select>
             </div>
 
-            <a href="https://fiscallegalconsultores.github.io/FLC/" class="text-white bg-blue-primary hover:bg-blue-hover text-xs font-semibold px-3 py-1.5 rounded-xl shadow-md inline-flex items-center gap-1">
+            <!-- Botón volver -->
+            <a href="https://fiscallegalconsultores.github.io/FLC/" class="text-white bg-blue-primary hover:bg-blue-hover text-xs font-semibold px-3 py-1.5 rounded-xl shadow-md inline-flex items-center gap-1 transition">
                 <i class="fa-solid fa-arrow-left mr-1"></i> Volver
             </a>
         </div>
     </nav>
 
+    <!-- Hero -->
     <header class="bg-gradient-to-b from-navy-900 to-navy-800 text-white py-6 px-4 text-center border-b border-slate-800">
         <h1 class="font-serif text-2xl md:text-3xl font-bold">Sistema de Calendarios Jurídico-Fiscales</h1>
         <p class="text-slate-400 text-xs mt-1">SAT · IMSS · INFONAVIT · Laboral · TFJA · PJF</p>
     </header>
 
+    <!-- Leyenda de fuentes -->
     <div class="max-w-6xl mx-auto px-4 mt-3">
         <div class="bg-slate-100 rounded-lg p-2 text-[9px] text-slate-500 flex flex-wrap gap-3 justify-center">
             <span><span class="font-bold text-blue-600">LISR</span> Ley ISR</span>
@@ -103,6 +110,7 @@
         </div>
     </div>
 
+    <!-- Calendario principal -->
     <main class="max-w-6xl mx-auto px-4 py-4">
         <div class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden">
             <div class="flex flex-wrap items-center justify-between p-3 border-b border-slate-100 bg-slate-50/50">
@@ -138,6 +146,7 @@
         </div>
     </main>
 
+    <!-- Footer -->
     <footer class="bg-slate-100 border border-slate-200 rounded-xl p-3 text-center text-[10px] text-slate-500 leading-relaxed max-w-6xl mx-auto mb-4">
         <p class="font-bold uppercase tracking-wider text-slate-700 mb-1">Fuentes normativas</p>
         <p>LISR | LIVA | CFF | RMF | LSS | Ley INFONAVIT | LFT | Acuerdos TFJA | Acuerdos CJF</p>
@@ -146,6 +155,7 @@
         <p class="mt-1">&copy; 2025 Fiscal Legal Consultores.</p>
     </footer>
 
+    <!-- Modales y alertas -->
     <div id="modalDetalle" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
         <div class="bg-white rounded-xl max-w-md w-full max-h-[70vh] overflow-y-auto shadow-xl">
             <div class="sticky top-0 bg-white border-b p-3 flex justify-between items-center">
