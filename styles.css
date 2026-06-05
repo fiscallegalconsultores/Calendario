@@ -1,8 +1,6 @@
-/* ESTILOS COMPACTOS PARA CALENDARIO */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
 
-/* Días del calendario - MÁS COMPACTO */
 .calendar-day {
     background-color: white;
     border-right: 1px solid #E2E8F0;
@@ -11,33 +9,26 @@ body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
     padding: 4px;
     transition: all 0.1s ease;
     cursor: pointer;
+    position: relative;
 }
 .calendar-day:hover { background-color: #F1F5F9; }
 
-/* Periodo vacacional (fondo tenue) */
-.calendar-day.vacaciones {
-    background-color: #E0F2FE;
-    position: relative;
-}
+.calendar-day.vacaciones { background-color: #E0F2FE; }
 .calendar-day.vacaciones::after {
     content: "🏖️";
     position: absolute;
     bottom: 2px;
     right: 2px;
     font-size: 8px;
-    opacity: 0.6;
+    opacity: 0.7;
 }
 
-/* Día inhábil */
 .calendar-day.inhabil { background-color: #FEF2F2; }
 .calendar-day.inhabil .day-number { text-decoration: line-through; }
-
-/* Día actual */
 .calendar-day.today { background-color: #EFF6FF; border: 1px solid #1D4ED8; }
 
 .day-number { font-weight: 600; font-size: 0.75rem; display: inline-block; margin-bottom: 2px; }
 
-/* Event badges más pequeños */
 .event-badge {
     font-size: 0.55rem;
     padding: 1px 4px;
@@ -59,14 +50,8 @@ body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
 .event-badge.pjf { background-color: #E8E8E8; color: #1F2937; border-left: 2px solid #4B5563; }
 .event-badge:hover { filter: brightness(0.96); }
 
-.more-events { font-size: 0.5rem; color: #64748B; margin-top: 1px; cursor: pointer; }
+.more-events { font-size: 0.5rem; color: #3B82F6; margin-top: 1px; cursor: pointer; font-weight: 500; }
 
-/* Scroll */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #E2E8F0; }
-::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 4px; }
-
-/* Tooltip para vacaciones */
 .vacaciones:hover::before {
     content: attr(data-tooltip);
     position: absolute;
@@ -80,9 +65,13 @@ body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
     border-radius: 4px;
     white-space: nowrap;
     z-index: 10;
+    pointer-events: none;
 }
 
-/* Responsive */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #E2E8F0; }
+::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 4px; }
+
 @media (max-width: 768px) {
     .calendar-day { min-height: 55px; padding: 2px; }
     .event-badge { font-size: 0.45rem; white-space: normal; word-break: break-word; }
