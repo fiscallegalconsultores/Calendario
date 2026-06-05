@@ -12,11 +12,8 @@ let alertTimer = null;
 // Días inhábiles fijos (mes-día) - Art. 74 LFT + Art. 12 CFF
 const diasInhabilesFijos = [
     '01-01', // Año Nuevo
-    '02-05', // Constitución (se ajusta a lunes, pero dejamos referencia)
-    '03-21', // Natalicio Juárez (se ajusta)
     '05-01', // Día del Trabajo
     '09-16', // Independencia
-    '11-20', // Revolución (se ajusta)
     '12-25'  // Navidad
 ];
 
@@ -28,27 +25,23 @@ document.addEventListener('DOMContentLoaded', () => {
     setupModalCloseListener();
     cargarRFCGuardado();
     verificarAlertas();
-    
-    // Verificar alertas cada hora
     setInterval(verificarAlertas, 3600000);
 });
 
-// Cargar RFC guardado en localStorage
 function cargarRFCGuardado() {
     const rfcGuardado = localStorage.getItem('flc_rfc');
     if (rfcGuardado) {
         userRFC = rfcGuardado;
         document.getElementById('rfc-input').value = rfcGuardado;
+        mostrarMensajeInformativo(`RFC cargado: ${userRFC}. Las fechas de pagos provisionales ya incluyen tu prórroga.`);
     }
 }
 
-// Guardar RFC
 function guardarRFC(rfc) {
     userRFC = rfc;
     localStorage.setItem('flc_rfc', rfc);
 }
 
-// Aplicar prórroga RFC
 function aplicarPrórroga() {
     const input = document.getElementById('rfc-input');
     let rfc = input.value.trim().toUpperCase();
@@ -57,17 +50,75 @@ function aplicarPrórroga() {
         userRFC = '';
         localStorage.removeItem('flc_rfc');
         renderCalendar();
+        mostrarMensajeInformativo('RFC eliminado. Las fechas vuelven a mostrar el límite general (día 17 de cada mes).');
         return;
     }
     
     if (rfc.length !== 12 && rfc.length !== 13) {
-        mostrarAlertaTemporal('RFC inválido - Debe tener 12 o 13 caracteres', 'error');
+        mostrarMensajeError('El RFC debe tener 12 o 13 caracteres (letras y números). Verifica el formato.');
         return;
     }
     
     guardarRFC(rfc);
     renderCalendar();
-    mostrarAlertaTemporal('Prórroga RFC aplicada correctamente', 'success');
+    
+    // Obtener los días de prórroga según el RFC
+    const sextoDigito = rfc.charAt(5);
+    let diasAdicionales = 0;
+    if (sextoDigito >= '1' && sextoDigito <= '2') diasAdicionales = 1;
+    else if (sextoDigito >= '3' && sextoDigito <= '4') diasAdicionales = 2;
+    else if (sextoDigito >= '5' && sextoDigito <= '6') diasAdicionales = 3;
+    else if (sextoDigito >= '7' && sextoDigito <= '8') diasAdicionales = 4;
+    else if (sextoDigito === '9' || sextoDigito === '0') diasAdicionales = 5;
+    
+    mostrarMensajeInformativo(
+        `✅ RFC ${rfc} registrado. ` +
+        `Tu sexto dígito (${sextoDigito}) te da ${diasAdicionales} día${diasAdicionales !== 1 ? 's' : ''} ` +
+        `adicional${diasAdicionales !== 1 ? 'es' : ''} para pagar tus impuestos mensuales (ISR/IVA/IEPS). ` +
+        `En el calendario verás las fechas ajustadas con una etiqueta "Con prórroga RFC".`
+    );
+}
+
+function mostrarMensajeInformativo(mensaje) {
+    const banner = document.getElementById('alert-banner');
+    const title = document.getElementById('alert-title');
+    const message = document.getElementById('alert-message');
+    const dateSpan = document.getElementById('alert-date');
+    
+    title.innerText = 'ℹ️ Información';
+    message.innerText = mensaje;
+    dateSpan.innerText = '';
+    
+    banner.classList.remove('hidden');
+    setTimeout(() => {
+        banner.style.transform = 'translateX(0)';
+    }, 100);
+    
+    if (alertTimer) clearTimeout(alertTimer);
+    alertTimer = setTimeout(() => {
+        closeAlert();
+    }, 8000);
+}
+
+function mostrarMensajeError(mensaje) {
+    const banner = document.getElementById('alert-banner');
+    const title = document.getElementById('alert-title');
+    const message = document.getElementById('alert-message');
+    const dateSpan = document.getElementById('alert-date');
+    
+    title.innerText = '❌ Error';
+    message.innerText = mensaje;
+    dateSpan.innerText = '';
+    
+    banner.classList.remove('hidden');
+    setTimeout(() => {
+        banner.style.transform = 'translateX(0)';
+    }, 100);
+    
+    if (alertTimer) clearTimeout(alertTimer);
+    alertTimer = setTimeout(() => {
+        closeAlert();
+    }, 5000);
 }
 
 // ============================================================
@@ -76,7 +127,6 @@ function aplicarPrórroga() {
 function calcularPrórrogaRFC(fechaBase) {
     if (!userRFC || userRFC.length < 6) return fechaBase;
     
-    // Sexto dígito del RFC (índice 5)
     const sextoDigito = userRFC.charAt(5);
     let diasAdicionales = 0;
     
@@ -101,17 +151,14 @@ function calcularPrórrogaRFC(fechaBase) {
     return fechaResultado;
 }
 
-// Verificar si una fecha es inhábil
 function esDiaInhabil(fecha) {
     const diaSemana = fecha.getDay();
-    // Sábado (6) o Domingo (0)
     if (diaSemana === 0 || diaSemana === 6) return true;
     
     const mes = fecha.getMonth() + 1;
     const dia = fecha.getDate();
     const mesDia = `${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`;
     
-    // Verificar días inhábiles fijos (considerando ajustes por lunes)
     if (mesDia === '02-05') {
         const primerLunesFebrero = getPrimerLunes(fecha.getFullYear(), 1);
         return fecha.getTime() === primerLunesFebrero.getTime();
@@ -128,7 +175,6 @@ function esDiaInhabil(fecha) {
     return diasInhabilesFijos.includes(mesDia);
 }
 
-// Funciones auxiliares para días festivos móviles
 function getPrimerLunes(anio, mes) {
     let fecha = new Date(anio, mes, 1);
     while (fecha.getDay() !== 1) fecha.setDate(fecha.getDate() + 1);
@@ -168,21 +214,14 @@ async function fetchCalendarData() {
     }
 }
 
-// ============================================================
-// OBTENER ESTATUS VISUAL (Histórico / Vigente / Proyectado)
-// ============================================================
 function getVisualStatus(event, fechaReferencia) {
     if (fechaReferencia < fechaActual) return 'historico';
     if (event.estatus === 'confirmado') return 'vigente';
     return 'proyectado';
 }
 
-// ============================================================
-// FILTRAR POR RÉGIMEN
-// ============================================================
 function filtrarPorRegimen(event) {
     if (currentRegimen === 'todos') return true;
-    
     const regimenes = event.regimenes || [];
     return regimenes.includes(currentRegimen);
 }
@@ -208,20 +247,22 @@ function renderCalendar() {
     }
     emptyState.classList.add('hidden');
     
-    // Ordenar por fecha
     events.sort((a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio));
     
     events.forEach(event => {
         const card = document.createElement('div');
         
         let fechaComparacion;
-        let fechaMostrar = new Date(event.fecha_inicio);
-        
-        // Aplicar prórroga RFC si aplica y hay RFC
         let prorrogaAplicada = false;
         let fechaConPrórroga = null;
+        let fechaOriginalStr = '';
         
-        if (event.prorroga_rfc && userRFC && event.tipo_fecha === 'puntual') {
+        // Solo aplicar prórroga a pagos provisionales (id que contiene "PROV" o "RESICO")
+        const aplicaProrroga = event.prorroga_rfc && userRFC && event.tipo_fecha === 'puntual' && 
+                               (event.id.includes('PROV') || event.id.includes('RESICO'));
+        
+        if (aplicaProrroga) {
+            fechaOriginalStr = event.fecha_inicio;
             fechaConPrórroga = calcularPrórrogaRFC(new Date(event.fecha_inicio));
             fechaComparacion = fechaConPrórroga;
             prorrogaAplicada = true;
@@ -249,7 +290,6 @@ function renderCalendar() {
                 break;
         }
         
-        // Badge de estatus
         let statusBadge = '';
         if (visualStatus === 'historico') {
             statusBadge = `<span class="bg-slate-100 text-slate-600 border border-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-md"><i class="fa-regular fa-clock mr-1"></i>Histórico</span>`;
@@ -262,14 +302,15 @@ function renderCalendar() {
                </span>`;
         }
         
-        // Mostrar fecha
         let dateDisplay = '';
         if (prorrogaAplicada && fechaConPrórroga) {
+            const fechaOriginalDate = new Date(fechaOriginalStr);
+            const diffDias = Math.round((fechaConPrórroga - fechaOriginalDate) / (1000 * 60 * 60 * 24));
             dateDisplay = `
-                <div class="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg">
+                <div class="text-sm font-bold bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-lg">
                     <i class="fa-regular fa-calendar text-blue-primary mr-1"></i>
-                    ${formatDateStr(fechaConPrórroga)} 
-                    <span class="text-[10px] text-slate-400 block">(con prórroga RFC)</span>
+                    <span class="text-blue-primary">${formatDateStr(fechaConPrórroga)}</span>
+                    <span class="text-[9px] text-slate-500 block mt-0.5">(Original: ${formatDateStr(fechaOriginalStr)} | +${diffDias} días por RFC)</span>
                 </div>`;
         } else if (event.tipo_fecha === 'rango') {
             dateDisplay = `<div class="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg"><i class="fa-regular fa-calendar text-blue-primary mr-1"></i>${formatDateStr(event.fecha_inicio)} al ${formatDateStr(event.fecha_fin)}</div>`;
@@ -277,9 +318,8 @@ function renderCalendar() {
             dateDisplay = `<div class="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg"><i class="fa-regular fa-calendar text-blue-primary mr-1"></i>${formatDateStr(event.fecha_inicio)}</div>`;
         }
         
-        // Badges adicionales
         let periodicidadBadge = event.periodicidad ? `<span class="bg-slate-100 text-slate-500 text-[9px] font-medium px-1.5 py-0.5 rounded-md uppercase">${event.periodicidad}</span>` : '';
-        let prorrogaBadge = (event.prorroga_rfc && !prorrogaAplicada && userRFC) ? `<span class="bg-blue-50 text-blue-600 text-[9px] font-medium px-1.5 py-0.5 rounded-md"><i class="fa-solid fa-id-card mr-0.5"></i>Prórroga RFC</span>` : '';
+        let prorrogaBadge = (aplicaProrroga) ? `<span class="bg-blue-100 text-blue-700 text-[9px] font-medium px-1.5 py-0.5 rounded-md"><i class="fa-solid fa-id-card mr-0.5"></i>Con prórroga RFC</span>` : '';
         let regimenBadge = '';
         if (event.regimenes) {
             if (event.regimenes.includes('RESICO')) regimenBadge += `<span class="bg-teal-50 text-teal-600 text-[9px] font-medium px-1.5 py-0.5 rounded-md">RESICO</span> `;
@@ -318,7 +358,6 @@ function renderCalendar() {
     });
 }
 
-// Formatear fecha
 function formatDateStr(dateInput) {
     let date;
     if (typeof dateInput === 'string') {
@@ -331,7 +370,7 @@ function formatDateStr(dateInput) {
 }
 
 // ============================================================
-// ALERTAS (15, 7, 3, 1 día antes)
+// ALERTAS
 // ============================================================
 function verificarAlertas() {
     if (!calendarData) return;
@@ -352,8 +391,9 @@ function verificarAlertas() {
                 fechaEvento = new Date(event.fecha_inicio);
             }
             
-            // Aplicar prórroga si aplica
-            if (event.prorroga_rfc && userRFC && event.tipo_fecha === 'puntual') {
+            const aplicaProrroga = event.prorroga_rfc && userRFC && event.tipo_fecha === 'puntual' && 
+                                   (event.id.includes('PROV') || event.id.includes('RESICO'));
+            if (aplicaProrroga) {
                 fechaEvento = calcularPrórrogaRFC(fechaEvento);
             }
             
@@ -411,30 +451,8 @@ function closeAlert() {
     }, 300);
 }
 
-function mostrarAlertaTemporal(mensaje, tipo) {
-    const banner = document.getElementById('alert-banner');
-    const title = document.getElementById('alert-title');
-    const message = document.getElementById('alert-message');
-    
-    if (tipo === 'error') {
-        title.innerText = '❌ Error';
-    } else {
-        title.innerText = '✅ Éxito';
-    }
-    message.innerText = mensaje;
-    
-    banner.classList.remove('hidden');
-    setTimeout(() => {
-        banner.style.transform = 'translateX(0)';
-    }, 100);
-    
-    setTimeout(() => {
-        closeAlert();
-    }, 3000);
-}
-
 // ============================================================
-// FUNCIONES DE CONTROL (TABS, FILTROS, MODAL)
+// FUNCIONES DE CONTROL
 // ============================================================
 function switchYear(year) {
     currentYear = year;
@@ -445,7 +463,6 @@ function switchYear(year) {
     const activeTab = document.getElementById(`tab-${year}`);
     activeTab.classList.remove('border-transparent', 'text-slate-500', 'hover:text-navy-900');
     activeTab.classList.add('border-blue-primary', 'text-blue-primary');
-    
     renderCalendar();
 }
 
@@ -460,11 +477,9 @@ function filterCategory(category) {
         activeBtn.classList.remove('bg-slate-100', 'hover:bg-slate-200', 'text-slate-700');
         activeBtn.classList.add('bg-navy-900', 'text-white', 'shadow-md');
     }
-    
     renderCalendar();
 }
 
-// Filtro por régimen desde el select
 const regimenSelect = document.getElementById('regimen-select');
 if (regimenSelect) {
     regimenSelect.addEventListener('change', (e) => {
