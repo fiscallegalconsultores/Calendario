@@ -8,28 +8,41 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Tailwind CSS CDN (utilidades base) -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: { 800: '#1E293B', 900: '#0F172A' },
+                        blue: { primary: '#1D4ED8', hover: '#1E40AF', light: '#3B82F6' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'] }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-slate-50 font-sans antialiased">
+<body class="bg-slate-50 font-sans text-slate-800 antialiased">
 
-    <!-- DISCLAIMER SUPERIOR -->
-    <div class="bg-amber-50 border-b border-amber-200 text-amber-800 px-4 py-2 text-center text-xs md:text-sm font-medium">
-        <i class="fa-regular fa-circle-info mr-1"></i> Herramienta de orientación fiscal. Las fechas están sujetas a publicación oficial anual (RMF, DOF). Consulte con su asesor.
+    <!-- TOP DISCLAIMER (estilo original FLC) -->
+    <div class="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2 text-center text-xs md:text-sm font-medium">
+        <i class="fa-solid fa-triangle-exclamation text-amber-600 mr-2"></i>
+        Las fechas proyectadas están sujetas a confirmación en el DOF. Consulte con nuestros especialistas de la firma para plazos procesales específicos.
     </div>
 
-    <!-- NAVBAR PRINCIPAL -->
-    <nav class="bg-navy-900 text-white sticky top-0 z-40 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-            <!-- Logo -->
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-primary w-10 h-10 rounded-lg flex items-center justify-center shadow-md">
-                    <span class="font-serif font-bold text-lg">FLC</span>
+    <!-- NAVBAR ESTILO FLC ORIGINAL -->
+    <nav class="bg-navy-900 border-b border-slate-800 sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-auto py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center">
+                <div class="h-12 w-12 bg-blue-primary rounded-lg flex items-center justify-center shadow-md">
+                    <span class="text-white font-serif font-bold text-lg">FLC</span>
                 </div>
-                <div class="hidden sm:block">
-                    <div class="font-serif font-bold tracking-tight text-base">FLC Abogados Tributarios</div>
-                    <div class="text-[10px] text-blue-light uppercase tracking-wider">Sistema de Calendarios</div>
+                <div class="ml-3 hidden sm:block">
+                    <span class="block font-serif text-white text-md font-bold tracking-wide">FLC</span>
+                    <span class="block text-blue-light text-[10px] uppercase font-semibold tracking-widest">Abogados Tributarios</span>
                 </div>
             </div>
 
@@ -47,33 +60,43 @@
                 </select>
             </div>
 
-            <!-- Filtros de contribuyente -->
+            <!-- Filtros -->
             <div class="flex flex-wrap items-center gap-2">
                 <div class="flex items-center bg-navy-800 rounded-xl px-2 py-1">
                     <i class="fa-regular fa-id-card text-blue-light text-xs mr-1"></i>
-                    <input type="text" id="rfcDigit" placeholder="Dígito RFC (1-0)" maxlength="1" class="w-12 bg-transparent text-white text-center text-sm focus:outline-none uppercase">
+                    <input type="text" id="rfcDigit" placeholder="Dígito RFC" maxlength="1" class="w-12 bg-transparent text-white text-center text-sm focus:outline-none uppercase">
                     <button id="aplicarProrrogaBtn" class="bg-blue-primary hover:bg-blue-hover text-white text-[10px] font-bold px-2 py-0.5 rounded-lg ml-1 transition">OK</button>
                 </div>
                 <select id="tipoContribuyente" class="bg-navy-800 text-white text-xs rounded-xl px-2 py-1.5">
                     <option value="ambos">👥 PF / PM</option>
-                    <option value="fisica">👤 Persona Física</option>
-                    <option value="moral">🏢 Persona Moral</option>
+                    <option value="fisica">👤 PF</option>
+                    <option value="moral">🏢 PM</option>
                 </select>
                 <select id="regimenFiscal" class="bg-navy-800 text-white text-xs rounded-xl px-2 py-1.5">
                     <option value="todos">📊 Todos</option>
-                    <option value="general">General / Ley</option>
+                    <option value="general">General</option>
                     <option value="resico">RESICO</option>
                     <option value="grancontribuyente">Gran Contribuyente</option>
                 </select>
             </div>
 
-            <a href="https://fiscallegalconsultores.github.io/FLC/" class="text-white bg-blue-primary hover:bg-blue-hover text-xs font-semibold px-3 py-1.5 rounded-xl transition shadow-md hidden md:inline-flex items-center gap-1">
-                <i class="fa-regular fa-building"></i> Inicio FLC
+            <a href="https://fiscallegalconsultores.github.io/FLC/" class="text-white bg-blue-primary hover:bg-blue-hover text-xs font-semibold px-3 py-1.5 rounded-xl transition shadow-md inline-flex items-center gap-1">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Volver
             </a>
         </div>
     </nav>
 
-    <!-- DASHBOARD SUPERIOR -->
+    <!-- HERO ESTILO FLC ORIGINAL -->
+    <header class="bg-gradient-to-b from-navy-900 to-navy-800 text-white py-10 px-4 text-center border-b border-slate-800">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="font-serif text-3xl md:text-4xl font-bold mb-2 tracking-tight">Sistema de Calendarios Jurídico-Fiscales</h1>
+            <p class="text-slate-400 text-sm max-w-2xl mx-auto font-light">
+                SAT · IMSS · INFONAVIT · Laboral · TFJA · PJF
+            </p>
+        </div>
+    </header>
+
+    <!-- DASHBOARD (4 tarjetas estilo FLC) -->
     <div class="max-w-7xl mx-auto px-4 mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="bg-white rounded-xl shadow-md p-3 border-l-4 border-blue-primary">
             <div class="text-xs text-slate-500 uppercase">Próximas</div>
@@ -108,7 +131,6 @@
                 <button id="btnHoy" class="text-xs bg-slate-200 hover:bg-slate-300 px-4 py-1.5 rounded-xl font-medium transition"><i class="fa-regular fa-calendar-days mr-1"></i> Hoy</button>
             </div>
 
-            <!-- Grid de días de la semana -->
             <div class="overflow-x-auto">
                 <div class="min-w-[640px]">
                     <div class="grid grid-cols-7 text-center text-sm font-semibold text-slate-500 border-b py-2 bg-slate-50">
@@ -120,17 +142,12 @@
         </div>
     </main>
 
-    <!-- PANEL DE ALERTAS -->
-    <div id="alertaPanel" class="fixed bottom-5 right-5 z-50 w-80 bg-white rounded-xl shadow-2xl border-l-4 border-blue-primary hidden transition-all duration-300 transform translate-x-full">
-        <div class="p-3">
-            <div class="flex justify-between items-start">
-                <div class="font-bold text-navy-900 text-sm" id="alertaTitulo">⚠️ Alerta Fiscal</div>
-                <button id="cerrarAlertaBtn" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="text-slate-600 text-xs mt-1" id="alertaMensaje"></div>
-            <div class="text-slate-400 text-[10px] mt-2" id="alertaFecha"></div>
-        </div>
-    </div>
+    <!-- FOOTER ESTILO FLC ORIGINAL -->
+    <footer class="bg-slate-100 border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500 leading-relaxed max-w-7xl mx-auto mb-6">
+        <p class="font-bold uppercase tracking-wider text-slate-700 mb-1 text-[10px]">Deslinde de Responsabilidad Corporativa</p>
+        <p id="footerDisclaimer">Este calendario constituye una herramienta de orientación general. Las fechas basadas en ley son fijas. Las fechas basadas en RMF están sujetas a publicación anual. FLC no se hace responsable por interpretaciones de terceros.</p>
+        <p class="mt-3 text-[10px] text-slate-400">&copy; 2025 Fiscal Legal Consultores. Todos los derechos reservados.</p>
+    </footer>
 
     <!-- MODAL DE DETALLE -->
     <div id="modalDetalle" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">

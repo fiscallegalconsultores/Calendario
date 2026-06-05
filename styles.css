@@ -1,4 +1,4 @@
-/* ESTILOS PARA CALENDARIO GRID */
+/* ESTILOS FLC + CALENDARIO GRID */
 * {
     margin: 0;
     padding: 0;
@@ -45,7 +45,6 @@ body {
     font-weight: bold;
 }
 
-/* Número de día */
 .day-number {
     font-weight: 600;
     font-size: 1rem;
@@ -53,7 +52,7 @@ body {
     margin-bottom: 4px;
 }
 
-/* Eventos dentro del día */
+/* Event badges con colores por entidad */
 .event-badge {
     font-size: 0.65rem;
     padding: 2px 6px;
@@ -81,7 +80,6 @@ body {
     transform: translateX(2px);
 }
 
-/* Contador de más eventos */
 .more-events {
     font-size: 0.6rem;
     color: #64748B;
@@ -102,7 +100,7 @@ body {
     border-radius: 10px;
 }
 
-/* Responsive: en móviles */
+/* Responsive */
 @media (max-width: 768px) {
     .calendar-day {
         min-height: 70px;
@@ -116,14 +114,4 @@ body {
     .day-number {
         font-size: 0.85rem;
     }
-}
-
-/* Animación del panel de alertas */
-#alertaPanel {
-    transition: transform 0.3s ease-out;
-}
-
-/* Tooltip básico */
-.event-badge {
-    position: relative;
 }
