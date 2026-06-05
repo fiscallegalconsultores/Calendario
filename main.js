@@ -1,38 +1,195 @@
-// Variables de Estado
+// ============================================================
+// VARIABLES GLOBALES
+// ============================================================
 let calendarData = null;
-let currentYear = '2025';
+let currentYear = '2026';
 let currentCategory = 'todos';
+let currentRegimen = 'todos';
+let userRFC = '';
+let fechaActual = new Date();
+let alertTimer = null;
 
-// Inicialización
+// Días inhábiles fijos (mes-día) - Art. 74 LFT + Art. 12 CFF
+const diasInhabilesFijos = [
+    '01-01', // Año Nuevo
+    '02-05', // Constitución (se ajusta a lunes, pero dejamos referencia)
+    '03-21', // Natalicio Juárez (se ajusta)
+    '05-01', // Día del Trabajo
+    '09-16', // Independencia
+    '11-20', // Revolución (se ajusta)
+    '12-25'  // Navidad
+];
+
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     fetchCalendarData();
     setupModalCloseListener();
+    cargarRFCGuardado();
+    verificarAlertas();
+    
+    // Verificar alertas cada hora
+    setInterval(verificarAlertas, 3600000);
 });
 
-// Obtener JSON (ruta plana: mismo nivel que index.html)
+// Cargar RFC guardado en localStorage
+function cargarRFCGuardado() {
+    const rfcGuardado = localStorage.getItem('flc_rfc');
+    if (rfcGuardado) {
+        userRFC = rfcGuardado;
+        document.getElementById('rfc-input').value = rfcGuardado;
+    }
+}
+
+// Guardar RFC
+function guardarRFC(rfc) {
+    userRFC = rfc;
+    localStorage.setItem('flc_rfc', rfc);
+}
+
+// Aplicar prórroga RFC
+function aplicarPrórroga() {
+    const input = document.getElementById('rfc-input');
+    let rfc = input.value.trim().toUpperCase();
+    
+    if (rfc.length === 0) {
+        userRFC = '';
+        localStorage.removeItem('flc_rfc');
+        renderCalendar();
+        return;
+    }
+    
+    if (rfc.length !== 12 && rfc.length !== 13) {
+        mostrarAlertaTemporal('RFC inválido - Debe tener 12 o 13 caracteres', 'error');
+        return;
+    }
+    
+    guardarRFC(rfc);
+    renderCalendar();
+    mostrarAlertaTemporal('Prórroga RFC aplicada correctamente', 'success');
+}
+
+// ============================================================
+// CÁLCULO DE PRÓRROGA RFC (Art. 31 CFF)
+// ============================================================
+function calcularPrórrogaRFC(fechaBase) {
+    if (!userRFC || userRFC.length < 6) return fechaBase;
+    
+    // Sexto dígito del RFC (índice 5)
+    const sextoDigito = userRFC.charAt(5);
+    let diasAdicionales = 0;
+    
+    if (sextoDigito >= '1' && sextoDigito <= '2') diasAdicionales = 1;
+    else if (sextoDigito >= '3' && sextoDigito <= '4') diasAdicionales = 2;
+    else if (sextoDigito >= '5' && sextoDigito <= '6') diasAdicionales = 3;
+    else if (sextoDigito >= '7' && sextoDigito <= '8') diasAdicionales = 4;
+    else if (sextoDigito === '9' || sextoDigito === '0') diasAdicionales = 5;
+    
+    if (diasAdicionales === 0) return fechaBase;
+    
+    let fechaResultado = new Date(fechaBase);
+    let diasContados = 0;
+    
+    while (diasContados < diasAdicionales) {
+        fechaResultado.setDate(fechaResultado.getDate() + 1);
+        if (!esDiaInhabil(fechaResultado)) {
+            diasContados++;
+        }
+    }
+    
+    return fechaResultado;
+}
+
+// Verificar si una fecha es inhábil
+function esDiaInhabil(fecha) {
+    const diaSemana = fecha.getDay();
+    // Sábado (6) o Domingo (0)
+    if (diaSemana === 0 || diaSemana === 6) return true;
+    
+    const mes = fecha.getMonth() + 1;
+    const dia = fecha.getDate();
+    const mesDia = `${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`;
+    
+    // Verificar días inhábiles fijos (considerando ajustes por lunes)
+    if (mesDia === '02-05') {
+        const primerLunesFebrero = getPrimerLunes(fecha.getFullYear(), 1);
+        return fecha.getTime() === primerLunesFebrero.getTime();
+    }
+    if (mesDia === '03-21') {
+        const tercerLunesMarzo = getTercerLunes(fecha.getFullYear(), 2);
+        return fecha.getTime() === tercerLunesMarzo.getTime();
+    }
+    if (mesDia === '11-20') {
+        const tercerLunesNoviembre = getTercerLunes(fecha.getFullYear(), 10);
+        return fecha.getTime() === tercerLunesNoviembre.getTime();
+    }
+    
+    return diasInhabilesFijos.includes(mesDia);
+}
+
+// Funciones auxiliares para días festivos móviles
+function getPrimerLunes(anio, mes) {
+    let fecha = new Date(anio, mes, 1);
+    while (fecha.getDay() !== 1) fecha.setDate(fecha.getDate() + 1);
+    return fecha;
+}
+
+function getTercerLunes(anio, mes) {
+    let fecha = new Date(anio, mes, 1);
+    let lunesEncontrados = 0;
+    while (lunesEncontrados < 3) {
+        if (fecha.getDay() === 1) lunesEncontrados++;
+        if (lunesEncontrados < 3) fecha.setDate(fecha.getDate() + 1);
+    }
+    return fecha;
+}
+
+// ============================================================
+// OBTENER DATOS DEL JSON
+// ============================================================
 async function fetchCalendarData() {
     try {
         const response = await fetch('fechas.json');
-        if (!response.ok) throw new Error('Error al recuperar el archivo de datos fiscales.');
+        if (!response.ok) throw new Error('Error al cargar datos');
         
         calendarData = await response.json();
-        
         document.getElementById('footer-disclaimer').innerText = calendarData.disclaimer_legal;
-        
         renderCalendar();
     } catch (error) {
         console.error('Error:', error);
         document.getElementById('calendar-grid').innerHTML = `
             <div class="col-span-full bg-red-50 border border-red-200 text-red-900 rounded-xl p-6 text-center">
                 <i class="fa-solid fa-circle-exclamation text-red-500 text-2xl mb-2"></i>
-                <p class="font-semibold">Error al cargar el calendario fiscal.</p>
-                <p class="text-sm opacity-80 mt-1">Por favor, intente recargar el sitio web más tarde.</p>
+                <p class="font-semibold text-sm">Error al cargar el calendario fiscal.</p>
+                <p class="text-xs opacity-80 mt-1">Verifica que el archivo fechas.json exista en el repositorio.</p>
             </div>
         `;
     }
 }
 
-// Renderizado principal
+// ============================================================
+// OBTENER ESTATUS VISUAL (Histórico / Vigente / Proyectado)
+// ============================================================
+function getVisualStatus(event, fechaReferencia) {
+    if (fechaReferencia < fechaActual) return 'historico';
+    if (event.estatus === 'confirmado') return 'vigente';
+    return 'proyectado';
+}
+
+// ============================================================
+// FILTRAR POR RÉGIMEN
+// ============================================================
+function filtrarPorRegimen(event) {
+    if (currentRegimen === 'todos') return true;
+    
+    const regimenes = event.regimenes || [];
+    return regimenes.includes(currentRegimen);
+}
+
+// ============================================================
+// RENDERIZADO PRINCIPAL
+// ============================================================
 function renderCalendar() {
     const grid = document.getElementById('calendar-grid');
     const emptyState = document.getElementById('empty-state');
@@ -40,24 +197,43 @@ function renderCalendar() {
     
     if (!calendarData || !calendarData.data[currentYear]) return;
     
-    const events = calendarData.data[currentYear].filter(event => {
-        if (currentCategory === 'todos') return true;
-        return event.categoria === currentCategory;
+    let events = calendarData.data[currentYear].filter(event => {
+        if (currentCategory !== 'todos' && event.categoria !== currentCategory) return false;
+        return filtrarPorRegimen(event);
     });
     
     if (events.length === 0) {
         emptyState.classList.remove('hidden');
         return;
-    } else {
-        emptyState.classList.add('hidden');
     }
+    emptyState.classList.add('hidden');
+    
+    // Ordenar por fecha
+    events.sort((a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio));
     
     events.forEach(event => {
         const card = document.createElement('div');
         
-        let categoryStyles = '';
-        let categoryIcon = '';
+        let fechaComparacion;
+        let fechaMostrar = new Date(event.fecha_inicio);
         
+        // Aplicar prórroga RFC si aplica y hay RFC
+        let prorrogaAplicada = false;
+        let fechaConPrórroga = null;
+        
+        if (event.prorroga_rfc && userRFC && event.tipo_fecha === 'puntual') {
+            fechaConPrórroga = calcularPrórrogaRFC(new Date(event.fecha_inicio));
+            fechaComparacion = fechaConPrórroga;
+            prorrogaAplicada = true;
+        } else if (event.tipo_fecha === 'rango') {
+            fechaComparacion = new Date(event.fecha_fin);
+        } else {
+            fechaComparacion = new Date(event.fecha_inicio);
+        }
+        
+        const visualStatus = getVisualStatus(event, fechaComparacion);
+        
+        let categoryStyles = '', categoryIcon = '';
         switch (event.categoria) {
             case 'fiscal':
                 categoryStyles = 'border-l-4 border-blue-primary bg-white';
@@ -73,47 +249,68 @@ function renderCalendar() {
                 break;
         }
         
-        const statusBadge = event.estatus === 'confirmado' 
-            ? `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold px-2 py-0.5 rounded-md"><i class="fa-solid fa-circle-check mr-1"></i>Vigente</span>`
-            : `<span class="bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold px-2 py-0.5 rounded-md relative group cursor-help">
-                <i class="fa-solid fa-circle-question mr-1"></i>Proyectado
-                <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-navy-900 text-white text-[10px] p-2 rounded shadow-xl hidden group-hover:block z-10 font-normal leading-normal">Fecha preliminar sujeta a publicación oficial en el DOF.</span>
-               </span>`;
-        
-        let dateDisplay = '';
-        if (event.tipo_fecha === 'rango') {
-            dateDisplay = `
-                <div class="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-2">
-                    <i class="fa-regular fa-calendar text-blue-primary"></i>
-                    <span>${formatDateStr(event.fecha_inicio)} al ${formatDateStr(event.fecha_fin)}</span>
-                </div>`;
+        // Badge de estatus
+        let statusBadge = '';
+        if (visualStatus === 'historico') {
+            statusBadge = `<span class="bg-slate-100 text-slate-600 border border-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-md"><i class="fa-regular fa-clock mr-1"></i>Histórico</span>`;
+        } else if (visualStatus === 'vigente') {
+            statusBadge = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-md"><i class="fa-solid fa-circle-check mr-1"></i>Vigente</span>`;
         } else {
-            dateDisplay = `
-                <div class="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-2">
-                    <i class="fa-regular fa-calendar text-blue-primary"></i>
-                    <span>${formatDateStr(event.fecha_inicio)}</span>
-                </div>`;
+            statusBadge = `<span class="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold px-2 py-0.5 rounded-md relative group cursor-help">
+                <i class="fa-solid fa-circle-question mr-1"></i>Proyectado
+                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 w-44 bg-navy-900 text-white text-[9px] p-1.5 rounded shadow-xl hidden group-hover:block z-10">Pendiente de publicación oficial</span>
+               </span>`;
         }
         
-        const criticalBorder = event.obligatorio ? 'ring-2 ring-red-500/20 shadow-red-100' : 'shadow-slate-100';
-
-        card.className = `p-6 rounded-2xl border border-slate-200/80 shadow-lg ${categoryStyles} ${criticalBorder} flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-1`;
+        // Mostrar fecha
+        let dateDisplay = '';
+        if (prorrogaAplicada && fechaConPrórroga) {
+            dateDisplay = `
+                <div class="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg">
+                    <i class="fa-regular fa-calendar text-blue-primary mr-1"></i>
+                    ${formatDateStr(fechaConPrórroga)} 
+                    <span class="text-[10px] text-slate-400 block">(con prórroga RFC)</span>
+                </div>`;
+        } else if (event.tipo_fecha === 'rango') {
+            dateDisplay = `<div class="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg"><i class="fa-regular fa-calendar text-blue-primary mr-1"></i>${formatDateStr(event.fecha_inicio)} al ${formatDateStr(event.fecha_fin)}</div>`;
+        } else {
+            dateDisplay = `<div class="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg"><i class="fa-regular fa-calendar text-blue-primary mr-1"></i>${formatDateStr(event.fecha_inicio)}</div>`;
+        }
+        
+        // Badges adicionales
+        let periodicidadBadge = event.periodicidad ? `<span class="bg-slate-100 text-slate-500 text-[9px] font-medium px-1.5 py-0.5 rounded-md uppercase">${event.periodicidad}</span>` : '';
+        let prorrogaBadge = (event.prorroga_rfc && !prorrogaAplicada && userRFC) ? `<span class="bg-blue-50 text-blue-600 text-[9px] font-medium px-1.5 py-0.5 rounded-md"><i class="fa-solid fa-id-card mr-0.5"></i>Prórroga RFC</span>` : '';
+        let regimenBadge = '';
+        if (event.regimenes) {
+            if (event.regimenes.includes('RESICO')) regimenBadge += `<span class="bg-teal-50 text-teal-600 text-[9px] font-medium px-1.5 py-0.5 rounded-md">RESICO</span> `;
+            if (event.regimenes.includes('sueldos')) regimenBadge += `<span class="bg-purple-50 text-purple-600 text-[9px] font-medium px-1.5 py-0.5 rounded-md">Sueldos</span> `;
+            if (event.regimenes.includes('general')) regimenBadge += `<span class="bg-orange-50 text-orange-600 text-[9px] font-medium px-1.5 py-0.5 rounded-md">General</span> `;
+        }
+        
+        const criticalBorder = event.obligatorio ? 'ring-2 ring-red-500/20 shadow-red-100' : '';
+        
+        card.className = `p-4 rounded-xl border border-slate-200 shadow-md ${categoryStyles} ${criticalBorder} transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5`;
         card.innerHTML = `
             <div>
-                <div class="flex items-center justify-between mb-4">
-                    <div class="text-xl">${categoryIcon}</div>
-                    <div class="flex items-center gap-2">
-                        ${event.obligatorio ? '<span class="bg-red-50 text-red-700 border border-red-200 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Crítico</span>' : ''}
+                <div class="flex items-center justify-between mb-3">
+                    <div class="text-lg">${categoryIcon}</div>
+                    <div class="flex items-center gap-1.5">
+                        ${event.obligatorio ? '<span class="bg-red-50 text-red-700 border border-red-200 text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase">Crítico</span>' : ''}
                         ${statusBadge}
                     </div>
                 </div>
-                <h3 class="font-serif text-xl font-bold text-navy-900 mb-2 leading-tight">${event.titulo}</h3>
-                <p class="text-slate-600 text-sm line-clamp-3 mb-4">${event.descripcion}</p>
+                <h3 class="font-serif text-lg font-bold text-navy-900 mb-1 leading-tight">${event.titulo}</h3>
+                <p class="text-slate-600 text-xs line-clamp-2 mb-3">${event.descripcion}</p>
+                <div class="flex flex-wrap gap-1 mb-2">
+                    ${periodicidadBadge}
+                    ${prorrogaBadge}
+                    ${regimenBadge}
+                </div>
             </div>
-            <div class="border-t border-slate-100 pt-4 mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="border-t border-slate-100 pt-3 mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 ${dateDisplay}
-                <button onclick="openFundamentoModal('${event.id}')" class="text-xs font-bold text-blue-primary hover:text-blue-hover transition-colors duration-300 flex items-center self-end sm:self-auto">
-                    Ver Fundamento Legal <i class="fa-solid fa-chevron-right ml-1 text-[10px]"></i>
+                <button onclick="openFundamentoModal('${event.id}')" class="text-[10px] font-bold text-blue-primary hover:text-blue-hover transition-colors">
+                    Ver Fundamento <i class="fa-solid fa-chevron-right ml-0.5 text-[8px]"></i>
                 </button>
             </div>
         `;
@@ -121,12 +318,124 @@ function renderCalendar() {
     });
 }
 
-function formatDateStr(dateStr) {
-    const parts = dateStr.split('-');
-    const date = new Date(parts[0], parts[1] - 1, parts[2]);
+// Formatear fecha
+function formatDateStr(dateInput) {
+    let date;
+    if (typeof dateInput === 'string') {
+        const parts = dateInput.split('-');
+        date = new Date(parts[0], parts[1] - 1, parts[2]);
+    } else {
+        date = dateInput;
+    }
     return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// ============================================================
+// ALERTAS (15, 7, 3, 1 día antes)
+// ============================================================
+function verificarAlertas() {
+    if (!calendarData) return;
+    
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    let alertas = [];
+    
+    for (const year in calendarData.data) {
+        for (const event of calendarData.data[year]) {
+            if (event.categoria === 'festivo') continue;
+            
+            let fechaEvento;
+            if (event.tipo_fecha === 'rango') {
+                fechaEvento = new Date(event.fecha_fin);
+            } else {
+                fechaEvento = new Date(event.fecha_inicio);
+            }
+            
+            // Aplicar prórroga si aplica
+            if (event.prorroga_rfc && userRFC && event.tipo_fecha === 'puntual') {
+                fechaEvento = calcularPrórrogaRFC(fechaEvento);
+            }
+            
+            const diffTime = fechaEvento - hoy;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 15 || diffDays === 7 || diffDays === 3 || diffDays === 1) {
+                alertas.push({
+                    titulo: event.titulo,
+                    fecha: fechaEvento,
+                    dias: diffDays,
+                    id: event.id
+                });
+            }
+        }
+    }
+    
+    if (alertas.length > 0) {
+        mostrarAlerta(alertas[0]);
+    }
+}
+
+function mostrarAlerta(alerta) {
+    const banner = document.getElementById('alert-banner');
+    const title = document.getElementById('alert-title');
+    const message = document.getElementById('alert-message');
+    const dateSpan = document.getElementById('alert-date');
+    
+    let textoDias = '';
+    if (alerta.dias === 15) textoDias = 'en 15 días';
+    else if (alerta.dias === 7) textoDias = 'en 7 días';
+    else if (alerta.dias === 3) textoDias = 'en 3 días';
+    else if (alerta.dias === 1) textoDias = 'mañana';
+    
+    title.innerText = `⚠️ Próxima fecha crítica`;
+    message.innerText = `${alerta.titulo} ${textoDias}`;
+    dateSpan.innerText = formatDateStr(alerta.fecha);
+    
+    banner.classList.remove('hidden');
+    setTimeout(() => {
+        banner.style.transform = 'translateX(0)';
+    }, 100);
+    
+    if (alertTimer) clearTimeout(alertTimer);
+    alertTimer = setTimeout(() => {
+        closeAlert();
+    }, 10000);
+}
+
+function closeAlert() {
+    const banner = document.getElementById('alert-banner');
+    banner.style.transform = 'translateX(100%)';
+    setTimeout(() => {
+        banner.classList.add('hidden');
+    }, 300);
+}
+
+function mostrarAlertaTemporal(mensaje, tipo) {
+    const banner = document.getElementById('alert-banner');
+    const title = document.getElementById('alert-title');
+    const message = document.getElementById('alert-message');
+    
+    if (tipo === 'error') {
+        title.innerText = '❌ Error';
+    } else {
+        title.innerText = '✅ Éxito';
+    }
+    message.innerText = mensaje;
+    
+    banner.classList.remove('hidden');
+    setTimeout(() => {
+        banner.style.transform = 'translateX(0)';
+    }, 100);
+    
+    setTimeout(() => {
+        closeAlert();
+    }, 3000);
+}
+
+// ============================================================
+// FUNCIONES DE CONTROL (TABS, FILTROS, MODAL)
+// ============================================================
 function switchYear(year) {
     currentYear = year;
     document.querySelectorAll('.year-tab').forEach(tab => {
@@ -147,15 +456,31 @@ function filterCategory(category) {
         btn.classList.add('bg-slate-100', 'hover:bg-slate-200', 'text-slate-700');
     });
     const activeBtn = document.getElementById(`filter-${category}`);
-    activeBtn.classList.remove('bg-slate-100', 'hover:bg-slate-200', 'text-slate-700');
-    activeBtn.classList.add('bg-navy-900', 'text-white', 'shadow-md');
+    if (activeBtn) {
+        activeBtn.classList.remove('bg-slate-100', 'hover:bg-slate-200', 'text-slate-700');
+        activeBtn.classList.add('bg-navy-900', 'text-white', 'shadow-md');
+    }
     
     renderCalendar();
 }
 
+// Filtro por régimen desde el select
+const regimenSelect = document.getElementById('regimen-select');
+if (regimenSelect) {
+    regimenSelect.addEventListener('change', (e) => {
+        currentRegimen = e.target.value;
+        renderCalendar();
+    });
+}
+
 function openFundamentoModal(eventId) {
     if (!calendarData) return;
-    const event = calendarData.data[currentYear].find(e => e.id === eventId);
+    
+    let event = null;
+    for (const year in calendarData.data) {
+        event = calendarData.data[year].find(e => e.id === eventId);
+        if (event) break;
+    }
     if (!event) return;
     
     document.getElementById('modal-autoridad').innerText = `${event.autoridad} • ${event.categoria}`;
