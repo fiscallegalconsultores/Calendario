@@ -219,3 +219,112 @@
         "fecha_fin": "2026-12-31",
         "categoria": "jurisdiccional",
         "autoridad": "TFJA",
+        "titulo": "Segundo Periodo Vacacional (Estimado Procesal)",
+        "descripcion": "Receso invernal proyectado. Congelamiento de términos para medios de defensa.",
+        "obligatorio": false,
+        "estatus": "proyectado",
+        "fundamento": "Proyección paramétrica FLC con base en acuerdos históricos del TFJA"
+      }
+    ],
+    "2027": [
+      {
+        "id": "27-ANUAL-PM",
+        "tipo_fecha": "puntual",
+        "fecha_inicio": "2027-03-31",
+        "categoria": "fiscal",
+        "autoridad": "SAT",
+        "titulo": "Declaración Anual Personas Morales (Proyectada)",
+        "descripcion": "Plazo legal estricto por Código. Fecha sujeta a prórroga automática si coincide con fin de semana.",
+        "obligatorio": true,
+        "estatus": "proyectado",
+        "fundamento": "Artículo 12 del CFF / Artículo 9 de la LISR"
+      },
+      {
+        "id": "27-ANUAL-PF",
+        "tipo_fecha": "puntual",
+        "fecha_inicio": "2027-04-30",
+        "categoria": "fiscal",
+        "autoridad": "SAT",
+        "titulo": "Declaración Anual Personas Físicas (Proyectada)",
+        "descripcion": "Fecha límite proyectada para personas físicas. Confirmar al inicio del ejercicio.",
+        "obligatorio": true,
+        "estatus": "proyectado",
+        "fundamento": "Artículo 150 de la LISR"
+      },
+      {
+        "id": "27-FES-01",
+        "tipo_fecha": "puntual",
+        "fecha_inicio": "2027-02-01",
+        "categoria": "festivo",
+        "autoridad": "LFT",
+        "titulo": "Aniversario de la Constitución (Proyectado)",
+        "descripcion": "Primer lunes de febrero. Día inhábil por conmemoración del 5 de febrero.",
+        "obligatorio": false,
+        "estatus": "proyectado",
+        "fundamento": "Artículo 74 de la LFT"
+      },
+      {
+        "id": "27-FES-02",
+        "tipo_fecha": "puntual",
+        "fecha_inicio": "2027-03-15",
+        "categoria": "festivo",
+        "autoridad": "LFT",
+        "titulo": "Natalicio de Benito Juárez (Proyectado)",
+        "descripcion": "Tercer lunes de marzo. Día inhábil por conmemoración del 21 de marzo.",
+        "obligatorio": false,
+        "estatus": "proyectado",
+        "fundamento": "Artículo 74 de la LFT"
+      },
+      {
+        "id": "27-VAC-EST-1",
+        "tipo_fecha": "rango",
+        "fecha_inicio": "2027-07-15",
+        "fecha_fin": "2027-07-31",
+        "categoria": "jurisdiccional",
+        "autoridad": "TFJA",
+        "titulo": "Periodo Vacacional de Verano (Proyectado)",
+        "descripcion": "Proyección de suspensión de plazos en tribunales federales. Sujeto a acuerdo plenario.",
+        "obligatorio": false,
+        "estatus": "proyectado",
+        "fundamento": "Proyección con base en históricos del TFJA"
+      },
+      {
+        "id": "27-FES-03",
+        "tipo_fecha": "puntual",
+        "fecha_inicio": "2027-09-16",
+        "categoria": "festivo",
+        "autoridad": "LFT",
+        "titulo": "Día de la Independencia (Proyectado)",
+        "descripcion": "16 de septiembre. Día inhábil oficial.",
+        "obligatorio": false,
+        "estatus": "proyectado",
+        "fundamento": "Artículo 74 de la LFT"
+      },
+      {
+        "id": "27-FES-04",
+        "tipo_fecha": "puntual",
+        "fecha_inicio": "2027-11-15",
+        "categoria": "festivo",
+        "autoridad": "LFT",
+        "titulo": "Conmemoración de la Revolución Mexicana (Proyectado)",
+        "descripcion": "Tercer lunes de noviembre. Día inhábil oficial.",
+        "obligatorio": false,
+        "estatus": "proyectado",
+        "fundamento": "Artículo 74 de la LFT"
+      },
+      {
+        "id": "27-VAC-EST-2",
+        "tipo_fecha": "rango",
+        "fecha_inicio": "2027-12-16",
+        "fecha_fin": "2027-12-31",
+        "categoria": "jurisdiccional",
+        "autoridad": "TFJA",
+        "titulo": "Segundo Periodo Vacacional (Proyectado)",
+        "descripcion": "Receso invernal proyectado. Congelamiento de plazos procesales.",
+        "obligatorio": false,
+        "estatus": "proyectado",
+        "fundamento": "Proyección paramétrica FLC"
+      }
+    ]
+  }
+}
