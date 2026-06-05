@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Sistema de Calendarios | FLC Abogados Tributarios</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Tailwind CSS CDN (utilidades base) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-50 font-sans antialiased">
+
+    <!-- DISCLAIMER SUPERIOR -->
+    <div class="bg-amber-50 border-b border-amber-200 text-amber-800 px-4 py-2 text-center text-xs md:text-sm font-medium">
+        <i class="fa-regular fa-circle-info mr-1"></i> Herramienta de orientación fiscal. Las fechas están sujetas a publicación oficial anual (RMF, DOF). Consulte con su asesor.
+    </div>
+
+    <!-- NAVBAR PRINCIPAL -->
+    <nav class="bg-navy-900 text-white sticky top-0 z-40 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-primary w-10 h-10 rounded-lg flex items-center justify-center shadow-md">
+                    <span class="font-serif font-bold text-lg">FLC</span>
+                </div>
+                <div class="hidden sm:block">
+                    <div class="font-serif font-bold tracking-tight text-base">FLC Abogados Tributarios</div>
+                    <div class="text-[10px] text-blue-light uppercase tracking-wider">Sistema de Calendarios</div>
+                </div>
+            </div>
+
+            <!-- Selector de Calendario -->
+            <div class="flex items-center gap-2 bg-navy-800 rounded-xl px-3 py-1.5">
+                <i class="fa-regular fa-calendar-alt text-blue-light text-sm"></i>
+                <select id="tipoCalendario" class="bg-transparent text-white text-sm focus:outline-none">
+                    <option value="todos" class="text-navy-900">📋 Todos los calendarios</option>
+                    <option value="sat" class="text-navy-900">💰 SAT (Fiscal)</option>
+                    <option value="imss" class="text-navy-900">🏥 IMSS</option>
+                    <option value="infonavit" class="text-navy-900">🏠 INFONAVIT</option>
+                    <option value="laboral" class="text-navy-900">👔 Laboral</option>
+                    <option value="tfja" class="text-navy-900">⚖️ TFJA</option>
+                    <option value="pjf" class="text-navy-900">🏛️ PJF</option>
+                </select>
+            </div>
+
+            <!-- Filtros de contribuyente -->
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex items-center bg-navy-800 rounded-xl px-2 py-1">
+                    <i class="fa-regular fa-id-card text-blue-light text-xs mr-1"></i>
+                    <input type="text" id="rfcDigit" placeholder="Dígito RFC (1-0)" maxlength="1" class="w-12 bg-transparent text-white text-center text-sm focus:outline-none uppercase">
+                    <button id="aplicarProrrogaBtn" class="bg-blue-primary hover:bg-blue-hover text-white text-[10px] font-bold px-2 py-0.5 rounded-lg ml-1 transition">OK</button>
+                </div>
+                <select id="tipoContribuyente" class="bg-navy-800 text-white text-xs rounded-xl px-2 py-1.5">
+                    <option value="ambos">👥 PF / PM</option>
+                    <option value="fisica">👤 Persona Física</option>
+                    <option value="moral">🏢 Persona Moral</option>
+                </select>
+                <select id="regimenFiscal" class="bg-navy-800 text-white text-xs rounded-xl px-2 py-1.5">
+                    <option value="todos">📊 Todos</option>
+                    <option value="general">General / Ley</option>
+                    <option value="resico">RESICO</option>
+                    <option value="grancontribuyente">Gran Contribuyente</option>
+                </select>
+            </div>
+
+            <a href="https://fiscallegalconsultores.github.io/FLC/" class="text-white bg-blue-primary hover:bg-blue-hover text-xs font-semibold px-3 py-1.5 rounded-xl transition shadow-md hidden md:inline-flex items-center gap-1">
+                <i class="fa-regular fa-building"></i> Inicio FLC
+            </a>
+        </div>
+    </nav>
+
+    <!-- DASHBOARD SUPERIOR -->
+    <div class="max-w-7xl mx-auto px-4 mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white rounded-xl shadow-md p-3 border-l-4 border-blue-primary">
+            <div class="text-xs text-slate-500 uppercase">Próximas</div>
+            <div class="text-2xl font-bold text-navy-900" id="dashboardProximas">0</div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-3 border-l-4 border-amber-500">
+            <div class="text-xs text-slate-500 uppercase">Próximos 7 días</div>
+            <div class="text-2xl font-bold text-navy-900" id="dashboardSemana">0</div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-3 border-l-4 border-red-400">
+            <div class="text-xs text-slate-500 uppercase">Vencidas</div>
+            <div class="text-2xl font-bold text-red-600" id="dashboardVencidas">0</div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-3 border-l-4 border-green-500">
+            <div class="text-xs text-slate-500 uppercase">Días inhábiles</div>
+            <div class="text-2xl font-bold text-green-700" id="dashboardInhabiles">0</div>
+        </div>
+    </div>
+
+    <!-- CALENDARIO PRINCIPAL -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+            <!-- Navegación -->
+            <div class="flex flex-wrap items-center justify-between p-4 border-b border-slate-100 bg-slate-50/50">
+                <div class="flex items-center gap-2">
+                    <button id="btnAnioAnterior" class="text-slate-600 hover:bg-slate-200 p-2 rounded-xl transition"><i class="fa-solid fa-chevrons-left"></i></button>
+                    <button id="btnMesAnterior" class="text-slate-600 hover:bg-slate-200 p-2 rounded-xl transition"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span id="monthYearTitle" class="font-serif text-xl font-bold text-navy-900 min-w-[180px] text-center">Marzo 2025</span>
+                    <button id="btnMesSiguiente" class="text-slate-600 hover:bg-slate-200 p-2 rounded-xl transition"><i class="fa-solid fa-chevron-right"></i></button>
+                    <button id="btnAnioSiguiente" class="text-slate-600 hover:bg-slate-200 p-2 rounded-xl transition"><i class="fa-solid fa-chevrons-right"></i></button>
+                </div>
+                <button id="btnHoy" class="text-xs bg-slate-200 hover:bg-slate-300 px-4 py-1.5 rounded-xl font-medium transition"><i class="fa-regular fa-calendar-days mr-1"></i> Hoy</button>
+            </div>
+
+            <!-- Grid de días de la semana -->
+            <div class="overflow-x-auto">
+                <div class="min-w-[640px]">
+                    <div class="grid grid-cols-7 text-center text-sm font-semibold text-slate-500 border-b py-2 bg-slate-50">
+                        <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div class="text-red-500">Sáb</div><div class="text-red-500">Dom</div>
+                    </div>
+                    <div id="calendarGrid" class="grid grid-cols-7 auto-rows-fr min-h-[500px]"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PANEL DE ALERTAS -->
+    <div id="alertaPanel" class="fixed bottom-5 right-5 z-50 w-80 bg-white rounded-xl shadow-2xl border-l-4 border-blue-primary hidden transition-all duration-300 transform translate-x-full">
+        <div class="p-3">
+            <div class="flex justify-between items-start">
+                <div class="font-bold text-navy-900 text-sm" id="alertaTitulo">⚠️ Alerta Fiscal</div>
+                <button id="cerrarAlertaBtn" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="text-slate-600 text-xs mt-1" id="alertaMensaje"></div>
+            <div class="text-slate-400 text-[10px] mt-2" id="alertaFecha"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DE DETALLE -->
+    <div id="modalDetalle" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+            <div class="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+                <h3 class="font-serif font-bold text-navy-900" id="modalTitulo">Detalle de obligaciones</h3>
+                <button id="cerrarModalBtn" class="text-slate-400 text-2xl leading-5">&times;</button>
+            </div>
+            <div id="modalContenido" class="p-4 space-y-4 text-sm"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
